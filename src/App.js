@@ -1,35 +1,71 @@
 import "./App.css";
-import { useReducer, useState } from "react";
+import { useReducer, useState, useEffect } from "react";
+
+// const initialState = {
+//   // Define your initial state properties here
+//   menu: [
+//     {
+//       menu: "Dosa",
+//       price: 40,
+//       quantity: 0,
+//     },
+//     {
+//       menu: "Idli",
+//       price: 20,
+//       quantity: 0,
+//     },
+//     {
+//       menu: "Vada",
+//       price: 10,
+//       quantity: 0,
+//     },
+//     {
+//       menu: "Chapathi",
+//       price: 30,
+//       quantity: 0,
+//     },
+//     {
+//       menu: "Rava Upma",
+//       price: 40,
+//       quantity: 0,
+//     },
+//   ],
+//   totalbill: 0,
+// };
 
 const initialState = {
-  // Define your initial state properties here
-  menu: [
-    {
-      menu: "Dosa",
-      price: 40,
-      quantity: 0,
-    },
-    {
-      menu: "Idli",
-      price: 20,
-      quantity: 0,
-    },
-    {
-      menu: "Vada",
-      price: 10,
-      quantity: 0,
-    },
-    {
-      menu: "Chapathi",
-      price: 30,
-      quantity: 0,
-    },
-    {
-      menu: "Rava Upma",
-      price: 40,
-      quantity: 0,
-    },
-  ],
+  menu: (() => {
+    const storedMenu = localStorage.getItem("menu");
+    return storedMenu
+      ? JSON.parse(storedMenu)
+      : [
+          {
+            menu: "Dosa",
+            price: 40,
+            quantity: 0,
+          },
+          {
+            menu: "Idli",
+            price: 20,
+            quantity: 0,
+          },
+          {
+            menu: "Vada",
+            price: 10,
+            quantity: 0,
+          },
+          {
+            menu: "Chapathi",
+            price: 30,
+            quantity: 0,
+          },
+          {
+            menu: "Rava Upma",
+            price: 40,
+            quantity: 0,
+          },
+        ];
+  })(),
   totalbill: 0,
 };
 
@@ -94,6 +130,15 @@ const reducer = (state, action) => {
 function App() {
   const [{ menu, totalbill }, dispatch] = useReducer(reducer, initialState);
 
+  useEffect(() => {
+    const objectString = JSON.stringify(menu);
+
+    // Store the string in local storage under a specific key
+    localStorage.setItem("menu", objectString);
+
+    // Optionally, you can perform other actions here
+  }, [menu]);
+
   return (
     <div className="App p-10 flex flex-col  mt-10 items-center">
       <MenuItems menu={menu}>
@@ -112,7 +157,7 @@ export default App;
 //MenuItems
 function MenuItems({ children, menu }) {
   return (
-    <div className="flex flex-wrap gap-4 items-center justify-center">
+    <div className="flex flex-wrap gap-2 items-center justify-center">
       {children}
     </div>
   );
@@ -120,19 +165,21 @@ function MenuItems({ children, menu }) {
 
 function Item({ item, dispatch, index }) {
   return (
-    <div className="flex flex-col bg-slate-200 justify-center gap-4 items-start p-5 rounded-lg  ">
-      <h2 className=" text-2xl font-medium">{item.menu}</h2>
-      <h3 className="text-xl">Price: {item.price} INR</h3>
+    <div className="flex flex-col bg-slate-200 justify-center items-center p-5 rounded-lg gap-2   ">
+      <h2 className="text-lg  md:text-2xl font-medium">
+        {item.menu} <span className="text-md">({item.price}₹)</span>
+      </h2>
+
       <div className="flex gap-3 items-center">
         <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-[0.5] px-2  md:py-2 md:px-4  rounded-full"
           onClick={() => dispatch({ type: "DECREMENT", payload: item.menu })}
         >
           -
         </button>
         <h2 className="text-xl"> {item.quantity}</h2>
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-[0.5] px-2  md:py-2 md:px-4 rounded-full"
           onClick={() => dispatch({ type: "INCREMENT", payload: item.menu })}
         >
           +
@@ -147,7 +194,7 @@ function Results({ totalbill, dispatch }) {
   //   return acc + item.price * item.quantity;
   // }, 0);
   return (
-    <div className="mt-8 flex flex-col items-start gap-3">
+    <div className="mt-8 flex flex-col items-start gap-6">
       <div className="flex gap-4">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -162,7 +209,7 @@ function Results({ totalbill, dispatch }) {
           Reset
         </button>
       </div>
-      <h2 className="text-2xl font-medium"> Total bill: {totalbill} INR</h2>
+      <h2 className="text-2xl font-medium"> Total bill: {totalbill}₹</h2>
     </div>
   );
 }
@@ -173,8 +220,8 @@ function ChangeItems({ menu, dispatch }) {
 
   const [updateprice, setupdateprice] = useState("");
 
-  const [selectedvalue, setSelect] = useState();
-  const [selectedvalue1, setSelect1] = useState();
+  const [selectedvalue, setSelect] = useState("default");
+  const [selectedvalue1, setSelect1] = useState("default");
 
   function handleUpdate(e) {
     if (!newitem || !newprice) return;
@@ -208,7 +255,7 @@ function ChangeItems({ menu, dispatch }) {
       <div className="flex flex-col items-start gap-4">
         <p className="text-2xl">Add Menu</p>
 
-        <form className=" bg-white rounded shadow-md" onSubmit={handleUpdate}>
+        <form className="  rounded" onSubmit={handleUpdate}>
           <div className="mb-4">
             <label
               htmlFor="text"
@@ -245,7 +292,15 @@ function ChangeItems({ menu, dispatch }) {
 
           <button
             type="Add"
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-800"
+            className="
+            w-full
+            bg-blue-500
+            hover:bg-blue-700
+            text-white
+            font-bold
+            py-2
+            px-4
+            rounded"
           >
             Submit
           </button>
@@ -256,10 +311,12 @@ function ChangeItems({ menu, dispatch }) {
         <p className="text-2xl">Price Change</p>
         <div className="flex flex-col gap-6">
           <select
-            className="border border-grey-800 rounded-lg bg-slate-300"
+            className="border border-grey-800 rounded-lg bg-slate-300 p-2"
             value={selectedvalue1}
             onChange={(e) => setSelect1(e.target.value)}
           >
+            <option value="default"> Select Menu</option>
+
             {menu.map((item) => (
               <option
                 key={item.menu}
@@ -291,7 +348,7 @@ function ChangeItems({ menu, dispatch }) {
           rounded"
             onClick={() => handlePriceChange()}
           >
-            price
+            Change price
           </button>
         </div>
       </div>
@@ -300,10 +357,11 @@ function ChangeItems({ menu, dispatch }) {
         <p className="text-2xl">Delete Items</p>
         <div className="flex gap-6">
           <select
-            className="border border-grey-800 rounded-lg bg-slate-300"
+            className="border border-grey-800 rounded-lg bg-slate-300 p-2"
             value={selectedvalue}
             onChange={handleMenuChange}
           >
+            <option value="default"> Select Menu</option>
             {menu.map((item) => (
               <option
                 key={item.menu}

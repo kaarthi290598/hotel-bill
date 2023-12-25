@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 body {
-  max-width: 1000px;
-  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
